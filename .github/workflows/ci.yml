@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck, unit and database tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # --legacy-peer-deps works around an npm arborist bug resolving Vitest's optional
+      # peer set. The lockfile is still honoured via `npm ci`.
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Generate SvelteKit types
+        run: npx svelte-kit sync
+
+      - name: Typecheck
+        run: npm run check
+
+      - name: Unit tests
+        run: npx vitest run --project unit
+
+      # Integration tests start a REAL PostgreSQL cluster (embedded-postgres) and verify
+      # RLS, SECURITY DEFINER behaviour and concurrent pass issuance. No cloud credentials
+      # are required, and nothing is mocked at the database boundary.
+      - name: Database integration tests
+        run: npx vitest run --project integration
+
+      - name: Production build
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+  browser:
+    name: Browser end-to-end tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start development database
+        run: |
+          npm run db:setup:dev > /tmp/devdb.log 2>&1 &
+          for i in $(seq 1 60); do
+            if grep -q "Press Ctrl+C" /tmp/devdb.log; then echo "database ready"; break; fi
+            sleep 2
+          done
+          cat /tmp/devdb.log
+
+      - name: Configure environment
+        run: |
+          cat > .env <<'ENVFILE'
+          DATABASE_URL=postgres://rp_dev:rp_dev@127.0.0.1:55432/reactionplayer
+          ALLOW_DEV_AUTH=true
+          NODE_ENV=development
+          RATE_LIMIT_MULTIPLIER=100
+          ENVFILE
+
+      - name: Start application
+        run: |
+          npm run dev > /tmp/app.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:5173/ > /dev/null; then echo "app ready"; break; fi
+            sleep 2
+          done
+          tail -20 /tmp/app.log
+
+      - name: Verify vertical slice over HTTP
+        run: node --experimental-strip-types scripts/verify-slice.ts
+
+      - name: Run browser tests
+        run: npx playwright test
+        env:
+          E2E_BASE_URL: http://127.0.0.1:5173
+          CI: 'true'
+
+      - name: Upload browser artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+            /tmp/app.log
+            /tmp/devdb.log
+          retention-days: 7

@@ -1,0 +1,259 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens (PROJECT_BRIEF.md §15).
+ * Desktop-first, minimalist, edge-to-edge docking, dark/acrylic controls,
+ * GPU-friendly transitions, reduced-motion respected.
+ */
+@theme {
+	--color-surface-0: oklch(0.13 0.005 280);
+	--color-surface-1: oklch(0.17 0.006 280);
+	--color-surface-2: oklch(0.22 0.008 280);
+	--color-surface-3: oklch(0.28 0.01 280);
+	--color-accent: oklch(0.72 0.15 265);
+	--color-accent-strong: oklch(0.62 0.19 265);
+	--color-danger: oklch(0.65 0.2 25);
+	--color-warning: oklch(0.78 0.15 85);
+	--color-success: oklch(0.72 0.16 150);
+
+	--radius-dock: 0;
+	--spacing-dock: 16rem; /* 256px persistent left navigation dock */
+}
+
+@layer base {
+	:root {
+		color-scheme: dark;
+		--hud-transition: 220ms;
+	}
+
+	html,
+	body {
+		height: 100%;
+		margin: 0;
+		background: var(--color-surface-0);
+	}
+
+	body {
+		font-family:
+			ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+		overscroll-behavior: none;
+	}
+
+	/* Visible focus for keyboard users on every interactive element. */
+	:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 2px;
+		border-radius: 4px;
+	}
+
+	/* Honour reduced-motion globally; individual transitions opt back in only if safe. */
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
+	}
+
+	::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	::-webkit-scrollbar-thumb {
+		background: var(--color-surface-3);
+		border-radius: 6px;
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background: oklch(0.36 0.01 280);
+	}
+}
+
+@layer components {
+	/* Acrylic control surface. Backdrop blur is used on CONTROLS only — never on the
+	   wallpaper, which must stay crisp with no global darkening filter (§15). */
+	.acrylic {
+		background: color-mix(in oklch, var(--color-surface-1) 78%, transparent);
+		backdrop-filter: blur(18px) saturate(140%);
+		-webkit-backdrop-filter: blur(18px) saturate(140%);
+		border: 1px solid color-mix(in oklch, white 8%, transparent);
+	}
+
+	.acrylic-strong {
+		background: color-mix(in oklch, var(--color-surface-0) 92%, transparent);
+		backdrop-filter: blur(24px) saturate(150%);
+		-webkit-backdrop-filter: blur(24px) saturate(150%);
+	}
+
+	.icon-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: 0.5rem;
+		color: oklch(0.88 0.01 280);
+		transition:
+			background-color 140ms ease,
+			color 140ms ease,
+			transform 140ms ease;
+	}
+	.icon-button:hover:not(:disabled) {
+		background: color-mix(in oklch, white 10%, transparent);
+		color: white;
+	}
+	.icon-button:active:not(:disabled) {
+		transform: scale(0.94);
+	}
+	.icon-button:disabled {
+		opacity: 0.35;
+		cursor: not-allowed;
+	}
+	.icon-button[data-active='true'] {
+		background: color-mix(in oklch, var(--color-accent) 26%, transparent);
+		color: white;
+	}
+
+	.field {
+		width: 100%;
+		border-radius: 0.5rem;
+		background: var(--color-surface-2);
+		border: 1px solid color-mix(in oklch, white 10%, transparent);
+		padding: 0.5rem 0.75rem;
+		color: oklch(0.95 0.005 280);
+		transition: border-color 140ms ease;
+	}
+	.field:focus {
+		border-color: var(--color-accent);
+		outline: none;
+	}
+
+	.btn-primary {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		border-radius: 0.5rem;
+		background: var(--color-accent-strong);
+		padding: 0.5rem 1rem;
+		font-weight: 500;
+		color: white;
+		transition:
+			background-color 140ms ease,
+			transform 140ms ease;
+	}
+	.btn-primary:hover:not(:disabled) {
+		background: var(--color-accent);
+	}
+	.btn-primary:active:not(:disabled) {
+		transform: scale(0.98);
+	}
+	.btn-primary:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
+	}
+
+	.btn-ghost {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		border-radius: 0.5rem;
+		border: 1px solid color-mix(in oklch, white 12%, transparent);
+		padding: 0.5rem 1rem;
+		color: oklch(0.9 0.01 280);
+		transition: background-color 140ms ease;
+	}
+	.btn-ghost:hover:not(:disabled) {
+		background: color-mix(in oklch, white 8%, transparent);
+	}
+	.btn-ghost:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
+	}
+
+	/* Range inputs used for scrubbers and volume. */
+	.slider {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 100%;
+		height: 4px;
+		border-radius: 999px;
+		background: color-mix(in oklch, white 18%, transparent);
+		cursor: pointer;
+	}
+	.slider::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 13px;
+		height: 13px;
+		border-radius: 50%;
+		background: white;
+		box-shadow: 0 0 0 1px oklch(0 0 0 / 0.35);
+		transition: transform 120ms ease;
+	}
+	.slider::-webkit-slider-thumb:hover {
+		transform: scale(1.18);
+	}
+	.slider::-moz-range-thumb {
+		width: 13px;
+		height: 13px;
+		border: none;
+		border-radius: 50%;
+		background: white;
+	}
+	.slider:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+}
+
+@layer utilities {
+	/* Tooltip for icon-only playback chrome (§15). Accessible name comes from aria-label;
+	   this is the visual affordance. */
+	.tip {
+		position: relative;
+	}
+	.tip::after {
+		content: attr(data-tip);
+		position: absolute;
+		bottom: calc(100% + 8px);
+		left: 50%;
+		transform: translateX(-50%) translateY(4px);
+		white-space: nowrap;
+		background: var(--color-surface-0);
+		color: oklch(0.94 0.005 280);
+		border: 1px solid color-mix(in oklch, white 12%, transparent);
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.375rem;
+		font-size: 0.75rem;
+		line-height: 1.1;
+		opacity: 0;
+		pointer-events: none;
+		transition:
+			opacity 140ms ease,
+			transform 140ms ease;
+		z-index: 60;
+	}
+	.tip:hover::after,
+	.tip:focus-visible::after {
+		opacity: 1;
+		transform: translateX(-50%) translateY(0);
+	}
+	.tip-below::after {
+		bottom: auto;
+		top: calc(100% + 8px);
+	}
+
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+	.no-scrollbar {
+		scrollbar-width: none;
+	}
+}
