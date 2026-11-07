@@ -14,6 +14,7 @@ The root font size is 14 px, so Tailwind spacing utilities scale by 0.875; expli
 - [x] Free and Pro tiers, Stripe Payment Link seam, cloud sync seam (both with working local fallbacks)
 - [x] Browser verification (see the log below)
 - [x] Production build, single-file build, hosted live preview, README, architecture doc, UI element inventory, source zip
+- [x] Private GitHub repository (`Sadaragavan/ReactionPlayer`, branch `main`) with a changelog and CI
 
 ## Design rules (decided, so do not re-debate)
 
@@ -79,8 +80,11 @@ The root font size is 14 px, so Tailwind spacing utilities scale by 0.875; expli
   engine (54 checks) and through the real screens (13 checks). All passing, no console errors.
 - The final single-file build was opened in the artifact viewer: Home renders, the demo starts, both layers show with the 1.5 s offset.
   The viewer logs two harmless notices (autoplay and screen wake lock are not allowed in the frame).
+- A fresh clone of the GitHub repository installs from the lockfile (`npm ci`, Node 22.22) and builds the same files as the verified
+  build: `dist/` is identical and the single-file `index.html` has the same SHA-256 (`4c155573…c190`).
 - **Not verified:** a real Stripe checkout or webhook, a real cloud backend, File System Access handle persistence across restarts,
-  the clipboard and fullscreen inside a sandboxed viewer, Safari and Firefox, real touch hardware, and screen readers.
+  the clipboard and fullscreen inside a sandboxed viewer, Safari and Firefox, real touch hardware, screen readers, and the CI
+  workflow on GitHub's own runners (its commands pass locally).
 
 ## Open questions and known gaps
 
@@ -91,6 +95,9 @@ The root font size is 14 px, so Tailwind spacing utilities scale by 0.875; expli
 - The phone dock shows icons without visible labels, and the phone transport drops frame steps, speed and volume.
 - "Try the demo" shows no loading state while the clips decode.
 - No HLS or DASH, no real payment verification, no real cloud backend (both have adapters ready: `billing.ts`, `cloud.ts`).
+- `npm audit` reports two low-severity advisories (prototype poisoning in `deepmerge`, pulled in by `@sveltejs/vite-plugin-svelte`).
+  It is a build-time dependency that never reaches the bundle, and no fix was available on 2026-11-07. Check again whenever
+  dependencies are updated.
 
 ## Conventions
 
@@ -99,3 +106,7 @@ The root font size is 14 px, so Tailwind spacing utilities scale by 0.875; expli
   `router.go({ name: 'settings', tab: 'subscription' })`.
 - Never blur. Never shadow except on floating surfaces. No all caps, no eyebrows, no "·"-joined meta strings (use icons and separate spans).
 - Write long files in small pieces (outline first, then sections); one long response once hit the output limit.
+- The code lives in the private GitHub repository `Sadaragavan/ReactionPlayer`, branch `main`. Make small commits and run the
+  checklist in `CLAUDE.md` first; user-visible changes get a line under `[Unreleased]` in `CHANGELOG.md`.
+- CI (`.github/workflows/ci.yml`) runs `npm ci`, `npm run check`, `npm run build` and `npm run build:single` on every push and pull
+  request, and keeps the single-file build as a downloadable artifact for 14 days.

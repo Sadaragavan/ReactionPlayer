@@ -144,11 +144,16 @@ src/
 docs/ARCHITECTURE.md                how the pieces fit
 docs/PROGRESS.md                    status, decisions and what was verified
 scripts/make-demo-clips.sh          regenerates the sample clips (needs ffmpeg with libvpx-vp9, libopus, drawtext)
+.github/workflows/ci.yml            type check and both builds on every push and pull request
+CHANGELOG.md                        what changed in each version
+CLAUDE.md                           the checklist and the easy-to-break rules for anyone changing the code
 ```
 
 ## More
 
 - `docs/ARCHITECTURE.md` explains the data model, the sync engine, the layer maths and the persistence layer.
 - `docs/PROGRESS.md` records what was built, the design rules, and what was tested and how.
+- `CHANGELOG.md` lists what changed in each version. Before a commit, run the checklist in `CLAUDE.md`; CI repeats the type
+  check and the builds on every push.
 - The sample clips flash and beep at the same moment but at different times, so the reaction needs `+1500 ms`
   to line up. That is what the demo session ships with, and it is a quick way to try the offset stepper.
