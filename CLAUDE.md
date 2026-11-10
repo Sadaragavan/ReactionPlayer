@@ -22,6 +22,10 @@ CI (`.github/workflows/ci.yml`) repeats steps 1 and 2 on every push and pull req
 
 - Design: true `#000`, hairline borders, no blur, no shadows except on floating surfaces, yellow only for live or
   selected things, Archivo only, sentence case. The full list is in `docs/PROGRESS.md`.
+- The one exception is Home's title screen (`src/lib/components/home/`): Cinzel in capitals, glow, a warm amber light and
+  the ember trail. It still never blurs anything. Nothing else borrows from it; the other pages keep the plain look. What
+  it may and may not do is under "The one exception" in `docs/PROGRESS.md`.
+- Bundled fonts keep their licence file beside them in `src/assets/fonts/`.
 - The source layer is always painted on top (`paintOrder` in `src/lib/engine/layouts.ts`).
 - The plan table in Settings → Subscription must say what the code enforces (`TIER_LIMITS` in `src/lib/constants.ts`).
 - `SHORTCUTS` in `src/lib/constants.ts` must match the `switch` in `src/lib/pages/Session.svelte`.

@@ -29,7 +29,7 @@ It works from any static host, from a `file://` path and inside an embedded view
 
 | Screen | Route | What it does |
 | --- | --- | --- |
-| Home | `#/` | Drop videos anywhere, start a new session, try the demo, or continue where you stopped. A wallpaper (image or GIF, never blurred) can replace the black. |
+| Home | `#/` | A title screen. **Continue** (or **New session** before the first one) in large type, then Load, Presets, Demo and Settings, small links beneath, and your plan with what it includes in the corner. Drop videos anywhere to start a session. Your wallpaper (image or GIF, never blurred) is its artwork; without one it is black. A glow follows the pointer, and is off when your system asks for reduced motion. |
 | New session | dialog | Pick a layout (split, grid, picture-in-picture), add the source and the reaction from files or links, name it. |
 | Session | `#/session` | The player. Layers on the black canvas, controls docked to the window edges, theater mode, fullscreen, right-click menu, layers panel. |
 | Load session | `#/sessions` | Saved sessions with a thumbnail, rename, duplicate, delete, export and import of a layout file. |
@@ -131,14 +131,14 @@ adapter (REST, Supabase, Firebase) before the app mounts to sync for real. Confl
 ```text
 src/
   App.svelte, main.ts, app.css      shell, global layers, design tokens (@theme) and base styles
-  assets/demo/                      the two sample clips; fonts/ holds Archivo (variable width)
+  assets/demo/                      the two sample clips; fonts/ holds Archivo (variable width) and Cinzel, with their licences
   lib/
     pages/                          Home, Session, Presets, Sessions, Settings
     components/                     home, player, presets, session, sessions, settings, shell, ui
-    engine/                         playback (clock + sync), timeline, track, layouts, capture, media, probe, demo, sessionFactory
+    engine/                         playback (clock + sync), timeline, track, layouts, capture, media, probe, demo, sessionFactory, appActions
     stores/                         session, settings, presets, router, ui, persistence (Svelte 5 runes)
-    actions/                        tooltip, dropzone, dom (portal, focus trap, click outside), layerGesture
-    utils/                          geometry, format, file, fullscreen
+    actions/                        tooltip, dropzone, dom (portal, focus trap, click outside), layerGesture, streak
+    utils/                          geometry, format, file, fullscreen, embers
     types.ts, constants.ts          shared contracts, tier limits, defaults, shortcuts
     billing.ts, cloud.ts            the two server seams
 docs/ARCHITECTURE.md                how the pieces fit

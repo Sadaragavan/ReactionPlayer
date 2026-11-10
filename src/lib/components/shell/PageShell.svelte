@@ -1,5 +1,5 @@
 <script lang="ts">
-  /** Dock on the left, a scrolling page on the right. Used by every page except Home and the player. */
+  /** Dock on the left, a scrolling page on the right. Used by every page except Home (which has its own menu) and the player. */
   import type { Snippet } from 'svelte';
   import Dock from './Dock.svelte';
 

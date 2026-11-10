@@ -96,6 +96,29 @@ same easing. The HUD fades after `hudAutoHideMs` of stillness; theater mode remo
 `onkeydown` in `Session.svelte` (see `SHORTCUTS` in `constants.ts` for the list), and it steps aside while you type, while
 a menu or dialog is open, and for Ctrl/Cmd/Alt chords.
 
+### Home (`pages/Home.svelte`, `components/home/`)
+
+Home is the app's title screen and the one page not set like the rest (the rules, and where they stop, are under "The one
+exception" in `docs/PROGRESS.md`). `Home.svelte` is one box that is also the drop target for videos (`use:dropzone`, which opens
+New session with the files). Inside it, bottom to top: the wallpaper (an `<img>` with `object-fit: cover`, so a GIF animates, and
+never blurred) or a faint warm light on black; an edge shade for legibility; `TitleMenu`; and `EmberTrail`.
+
+`TitleMenu` is a CSS grid: the wordmark and profile button on top, the menu bottom-left (a large lead item, a row of items, a row
+of small links) and the plan block bottom-right. The lead is "Continue", with the last session's name and age, when
+`session.lastSession` exists, and "New session" otherwise. The plan block is built from `settings.limits` (and `TIER_LIMITS.pro`
+for the line about Pro), so it says what the code enforces. `engine/appActions.ts` holds `continueLast` and `quitApp`, which the
+Dock shares. Arrow keys walk the buttons in reading order, only while focus is already inside the menu so dialogs keep their keys.
+
+`use:streak` (`actions/streak.ts`) gives every item its hover line. It writes the pointer's x inside the element to `--sx` and sets
+`data-hot` while the item is hovered or has keyboard focus; the stylesheet draws the line (`::after`) and its bright head
+(`::before`) from those two. Keyboard focus lights the full width.
+
+`EmberTrail` mounts an `EmberField` (`utils/embers.ts`, plain TypeScript) on a `pointer-events: none` canvas blended with
+`screen`. The field follows the pointer with a spring (the comet head), keeps the last 720 ms of positions and draws them as a
+tapered ribbon in three additive passes (haze, body, hot core), with a head, a few shed sparks and slow drifting motes. Its frame
+loop runs only while something is moving, at about half rate when only motes are, and it stops when Home unmounts, pauses while
+the tab is hidden, and stays off under `prefers-reduced-motion`. Touch only bursts sparks where it lands.
+
 ## State and persistence
 
 | Store | Owns |
@@ -139,7 +162,7 @@ eight per video. Saving writes a preset with a composed thumbnail.
 ## Build and delivery
 
 `vite.config.ts` uses `base: './'` and a `$lib` alias. `npm run build` writes `dist/`. `npm run build:single` adds
-`vite-plugin-singlefile`, which inlines JS, CSS, the font and the sample clips into one `dist/index.html` (about 970 KB);
+`vite-plugin-singlefile`, which inlines JS, CSS, the fonts and the sample clips into one `dist/index.html` (about 1 MB);
 it also writes into `dist/`, so copy the file out before rebuilding. The hosted live preview is that file wrapped as an
 artifact page (title, a dark `color-scheme`, a black ground, then the inlined CSS and module script).
 
@@ -159,6 +182,8 @@ into the stylesheet and makes a fresh build differ from the one that was tested.
   a 390 px phone layout; menus and flows (preset apply, Presets to new session, Quit and Reopen); a sandbox simulation
   (blocked storage, a throwing file picker, a rejecting clipboard, refused fullscreen); unequal lengths through the engine
   (54 checks) and through the real screens (13 checks).
+- The Home title screen was added later and checked on the dev server (menu actions, keyboard, Pro, reduced motion, paint
+  rates, touch, and layout at 13 sizes); the details are in the verification log in `docs/PROGRESS.md`.
 - Not verifiable here: a real Stripe checkout or webhook, a real cloud backend, File System Access handle persistence
   across restarts (it needs a real permission prompt), the clipboard and fullscreen inside a sandboxed viewer, Safari and
   Firefox, real touch hardware (touch was emulated), and screen readers.
@@ -166,7 +191,7 @@ into the stylesheet and makes a fresh build differ from the one that was tested.
 ## Extending it
 
 - **A page.** Add a `RouteName` in `types.ts`, parse it in `router.svelte.ts`, render it in `App.svelte`, and wrap its
-  content in `PageShell`. Add a `Dock` item if it needs one.
+  content in `PageShell`. Add a `Dock` item if it needs one, and a button in `TitleMenu.svelte` if it should be reachable from Home.
 - **A setting.** Add the field to `PlaybackPrefs` or `AppSettings`, a default in `DEFAULT_SETTINGS`, and a `SettingRow` in the
   matching tab. Old saved settings are merged over the defaults, so no migration is needed.
 - **A shortcut.** Add it to the `switch` in `Session.svelte` and to `SHORTCUTS` in `constants.ts` so the dialog lists it.
@@ -183,6 +208,7 @@ Recorded from the UI review; none block use.
 - The dock has no Home item and the wordmark is not a link. From Load session and Presets the only way back to Home is Quit
   then Reopen; from Settings there is also the "See Home" button on Appearance; the player has its own Home button.
 - The phone dock shows icons without visible labels, and touch screens have no tooltips.
-- "Try the demo" shows no loading state while the clips decode.
+- "Try the demo" in the New session dialog shows no loading state while the clips decode (the Home menu's Demo item does).
+- The ember trail on Home was measured in Chromium only.
 - The phone transport drops frame steps, speed and volume; speed is still in the right-click menu.
 - No HLS or DASH, and no real payment verification or cloud backend.

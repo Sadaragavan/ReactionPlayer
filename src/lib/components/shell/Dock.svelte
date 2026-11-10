@@ -1,11 +1,12 @@
 <script lang="ts">
   /**
    * The left-hand dock: a fixed 256 px column on desktop, an icon strip along the
-   * bottom edge on phones. It is the app's only persistent navigation and shows
-   * on every page except the player, which has its own docked HUD.
+   * bottom edge on phones. It is the persistent navigation of every page except
+   * Home, which is a title screen with its own menu, and the player, which has
+   * its own docked HUD.
    */
   import { Clapperboard, FolderOpen, Play, Power, Settings, SlidersHorizontal } from '@lucide/svelte';
-  import { playback } from '$lib/engine/playback.svelte';
+  import { continueLast, quitApp } from '$lib/engine/appActions';
   import { router } from '$lib/stores/router.svelte';
   import { session } from '$lib/stores/session.svelte';
   import { settings } from '$lib/stores/settings.svelte';
@@ -13,23 +14,8 @@
   import { timeAgo } from '$lib/utils/format';
   import Logo from './Logo.svelte';
 
-  /** `overlay`: sits on a wallpaper, so it is a see-through black (still no blur) instead of solid. */
-  let { overlay = false }: { overlay?: boolean } = $props();
-
   const route = $derived(router.route.name);
   const last = $derived(session.lastSession);
-
-  async function resume() {
-    if (await session.resume()) router.go('session');
-    else ui.toast('That session is no longer saved.', 'error');
-  }
-
-  async function quit() {
-    playback.release();
-    await session.close();
-    router.go('home');
-    ui.dormant = true;
-  }
 
   const item =
     'group relative flex h-12 w-full items-center gap-3.5 px-6 text-left transition-colors duration-150 hover:bg-hover disabled:pointer-events-none disabled:opacity-35 max-md:h-14 max-md:flex-1 max-md:justify-center max-md:px-0';
@@ -37,7 +23,7 @@
 
 <nav
   aria-label="Main"
-  class="z-30 flex shrink-0 flex-col border-line md:h-full md:w-[256px] md:border-r max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:h-14 max-md:flex-row max-md:border-t {overlay ? 'bg-black/80' : 'bg-black'}"
+  class="z-30 flex shrink-0 flex-col border-line bg-black md:h-full md:w-[256px] md:border-r max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:h-14 max-md:flex-row max-md:border-t"
 >
   <div class="flex h-20 items-center gap-3 px-6 max-md:hidden">
     <Logo />
@@ -45,7 +31,7 @@
   </div>
 
   <div class="flex flex-1 flex-col max-md:flex-row">
-    <button class={item} disabled={!session.canContinue} onclick={resume} aria-label="Continue">
+    <button class={item} disabled={!session.canContinue} onclick={continueLast} aria-label="Continue">
       <Play size={18} strokeWidth={1.9} class="shrink-0 text-accent" />
       <span class="min-w-0 max-md:sr-only">
         <span class="nav-wide block text-[15px]">Continue</span>
@@ -86,7 +72,7 @@
       <span class="nav-wide text-[15px] max-md:sr-only {route === 'settings' ? 'text-fg' : 'text-fg-2 group-hover:text-fg'}">Settings</span>
     </button>
 
-    <button class={item} onclick={quit} aria-label="Quit">
+    <button class={item} onclick={quitApp} aria-label="Quit">
       <Power size={18} strokeWidth={1.8} class="shrink-0 text-fg-2 group-hover:text-fg" />
       <span class="nav-wide text-[15px] text-fg-2 group-hover:text-fg max-md:sr-only">Quit</span>
     </button>

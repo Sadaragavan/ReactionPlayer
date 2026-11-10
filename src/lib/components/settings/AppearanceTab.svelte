@@ -2,11 +2,12 @@
   /**
    * Appearance: the Home wallpaper.
    *
-   * A picture or an animated GIF, uploaded or linked, shown edge to edge behind
-   * the dock. It is never blurred. “Full clarity” (on by default) also keeps it
-   * undimmed; turn it off for a plain dark veil, still without blur.
-   * The preview below is the same markup Home renders, so what you see is what
-   * you get.
+   * A picture or an animated GIF, uploaded or linked. It is the artwork of Home's
+   * title screen, edge to edge behind the menu, and it is never blurred. “Full
+   * clarity” (on by default) keeps it free of any overall dimming; turn it off for
+   * a plain dark veil, still without blur. Home always lays a soft shade along its
+   * bottom and left edges so the menu stays readable, which the preview below
+   * leaves out: it shows the picture and the veil, not the menu.
    */
   import { Check, House, Image as ImageIcon, ImagePlus, Link, Trash, Upload } from '@lucide/svelte';
   import { dropzone } from '$lib/actions/dropzone';
@@ -90,11 +91,11 @@
   async function remove() {
     error = '';
     await settings.setWallpaper(null);
-    ui.toast('Wallpaper removed. Home is pure black again.', 'info');
+    ui.toast('Wallpaper removed. Home is black again.', 'info');
   }
 </script>
 
-<Section title="Wallpaper" intro="Fills the Home screen edge to edge behind the dock. It is never blurred.">
+<Section title="Wallpaper" intro="The artwork behind the Home menu, edge to edge. It is never blurred.">
   <div class="py-6">
     <!-- The preview is a drop target too: drag a picture onto it. -->
     <div
@@ -115,7 +116,7 @@
         <div class="absolute inset-0 grid place-items-center">
           <div class="flex flex-col items-center gap-2 text-fg-3">
             <ImageIcon size={26} strokeWidth={1.4} />
-            <span class="text-[13px]">Pure black. Drop a picture here.</span>
+            <span class="text-[13px]">No picture. Drop one here.</span>
           </div>
         </div>
       {/if}
@@ -152,7 +153,7 @@
 
   <SettingRow
     title="Full clarity"
-    hint="No blur, no dimming: the picture shows exactly as it is. Turn it off to lay a plain dark veil over it, still without blur."
+    hint="No blur and no overall dimming: the picture shows as it is, apart from a soft shade along the bottom and left edges that keeps the menu readable. Turn it off to lay a plain dark veil over it, still without blur."
   >
     <Switch label="Full clarity" checked={clear} onchange={(on) => settings.setWallpaperClear(on)} />
   </SettingRow>

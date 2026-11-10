@@ -5,6 +5,24 @@ and the version matches `package.json`.
 
 ## [Unreleased]
 
+### Changed
+
+- Home is now a title screen. A large glowing **Continue**, with the session it reopens (or **New session** before the first
+  one), then Load, Presets, Demo and Settings in a row, small links under that (Profile, Subscription, Shortcuts) and your plan
+  with what it includes in the bottom-right corner. Hovering or focusing an item draws a glowing line from its left edge to
+  the pointer, and the arrow keys move through the menu. Your wallpaper is the artwork; with none the screen stays black.
+- The Home menu has its own Quit, so Home no longer shows the dock. The other pages keep it.
+- The wallpaper text in Settings now says the picture sits behind the Home menu, and that a soft shade along the bottom and left
+  keeps the menu readable.
+
+### Added
+
+- A glowing trail that follows the pointer across Home, with a few drifting sparks. It is off when your system asks for reduced
+  motion, and a tap on a touch screen sends up a small spray of sparks instead of a trail.
+- Touch targets on Home are at least 44 px, and the screen reflows for portrait phones and tablets, narrow windows and short
+  landscape screens.
+- Cinzel for the Home menu, under the SIL Open Font Licence 1.1. The licence text is in `src/assets/fonts/`.
+
 ## [0.1.0] - 2026-11-07
 
 First version in this repository.
