@@ -23,6 +23,30 @@
   src: url('./assets/fonts/archivo-latin-wdth.woff2') format('woff2-variations');
 }
 
+/* Cinzel is for the Home menu only: Roman capitals set it apart from Archivo's extended weight, like a title card.
+   One axis (weight 400–900), Latin subset. */
+@font-face {
+  font-family: 'Cinzel Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 900;
+  src: url('./assets/fonts/cinzel-latin-wght.woff2') format('woff2-variations');
+}
+
+/* Home title screen. Plain custom properties rather than `@theme`, because Tailwind drops theme variables that no
+   utility uses, and these are read from component CSS. */
+:root {
+  --font-display: 'Cinzel Variable', 'Trajan Pro', 'Times New Roman', serif;
+  /* The warm light of the ember trail and the menu glow: hot centre, amber, deep orange rim. */
+  --ember-core: #fff3cf;
+  --ember: #ffc24d;
+  --ember-deep: #ff8a1f;
+  /* Menu text at rest, and its dimmer cousins for meta and links. */
+  --paper: #f7efd9;
+  --paper-2: #c9c3b8;
+  --paper-3: #8c8c92;
+}
+
 @theme {
   --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
